@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import folium
+from streamlit_folium import st_folium
 
 from src.services.owners_service import OwnersService
 from src.services.vessels_service import VesselsService
@@ -301,7 +303,34 @@ if page == "Staff":
 
 # ---------------- Dashboard ----------------
 if page == "Dashboard":
-    from dashboard_ui import show_dashboard
-    show_dashboard()
+    st.header("📊 Marina Dashboard")
+    dashboard = Dashboard()
+
+    # Vessel map
+    st.subheader("🌍 Vessel Locations")
+    m = folium.Map(location=[17.3850, 78.4867], zoom_start=5, tiles="cartodbpositron")
+
+    gps_data = [
+        {"vessel_id": 1, "lat": 17.3850, "lon": 78.4867},
+        {"vessel_id": 2, "lat": 13.0827, "lon": 80.2707},
+        {"vessel_id": 3, "lat": 18.1124, "lon": 83.3956},
+    ]
+
+    for v in gps_data:
+        folium.Marker(
+            [v["lat"], v["lon"]],
+            popup=f"Vessel {v['vessel_id']}",
+            icon=folium.Icon(color="blue", icon="ship", prefix="fa"),
+        ).add_to(m)
+
+    st_folium(m, width=700, height=500)
+
+    # The rest of your dashboard charts (distribution, occupancy, revenue, violations)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(dashboard.vessel_type_distribution(), use_container_width=True)
+    with col2:
+        st.plotly_chart(dashboard.dock_occupancy(), use_container_width=True)
+
 
 
