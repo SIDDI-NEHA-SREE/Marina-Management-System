@@ -1,21 +1,25 @@
+import sys, os
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
+
 import streamlit as st
 import pandas as pd
 
-from src.services.owners_service import OwnersService
-from src.services.vessels_service import VesselsService
-from src.services.dockings_service import DockingsService
-from src.services.payments_service import PaymentsService
-from src.services.violations_service import ViolationsService
-from src.services.staff_service import StaffService
+from services.owners_service import OwnersService
+from services.vessels_service import VesselsService
+from services.dockings_service import DockingsService
+from services.payments_service import PaymentsService
+from services.violations_service import ViolationsService
+from services.staff_service import StaffService
 
-from src.models.owner import Owner
-from src.models.vessel import Vessel
-from src.models.docking import Docking
-from src.models.payment import Payment
-from src.models.violation import Violation
-from src.models.staff import Staff
+from models.owner import Owner
+from models.vessel import Vessel
+from models.docking import Docking
+from models.payment import Payment
+from models.violation import Violation
+from models.staff import Staff
 
-from src.dashboard.dashboard import Dashboard
+from dashboard.dashboard import Dashboard
+
 
 
 # ---------- PAGE CONFIG ----------
@@ -277,3 +281,4 @@ if page == "Staff":
 if page == "Dashboard":
     from dashboard_ui import show_dashboard
     show_dashboard()
+
