@@ -4,7 +4,7 @@ from src.models.owner import Owner
 class OwnersService:
     def __init__(self):
         self.client = supabase
-        self.table = "MMSOwners"
+        self.table = "mmsowners"
 
     def create_owner(self, owner: Owner):
         """Insert a new owner into the database"""
@@ -25,3 +25,4 @@ class OwnersService:
         """Delete owner by ID"""
         res = self.client.table(self.table).delete().eq("owner_id", owner_id).execute()
         return res.data
+
