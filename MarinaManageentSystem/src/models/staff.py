@@ -1,6 +1,5 @@
 class Staff:
-    def __init__(self, name, role, contact_info, staff_id=None):
-        self.staff_id = staff_id
+    def __init__(self, name, role, contact_info):
         self.name = name
         self.role = role
         self.contact_info = contact_info
