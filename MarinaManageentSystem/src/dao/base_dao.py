@@ -4,11 +4,9 @@ class BaseDAO:
         self.table = table
 
     def insert(self, data):
-        """Insert a new record and return inserted rows."""
         return self.client.table(self.table).insert(data).execute().data
 
     def select(self, filters=None):
-        """Select records with optional filters and return list of dicts."""
         query = self.client.table(self.table).select("*")
         if filters:
             for key, value in filters.items():
@@ -16,7 +14,6 @@ class BaseDAO:
         return query.execute().data
 
     def update(self, record_id, data, id_field="id"):
-        """Update a record and return updated rows."""
         return (
             self.client.table(self.table)
             .update(data)
@@ -26,7 +23,6 @@ class BaseDAO:
         )
 
     def delete(self, record_id, id_field="id"):
-        """Delete a record and return deleted rows."""
         return (
             self.client.table(self.table)
             .delete()
