@@ -1,17 +1,18 @@
-from src.dao.base_dao import BaseDAO
+from src.services.base_service import BaseService
+from src.models.staff import Staff
 
-class StaffService:
+class StaffService(BaseService):
     def __init__(self):
-        self.dao = BaseDAO("mmsstaff")
+        super().__init__("mmsstaff")
 
-    def add_staff(self, staff):
-        return self.dao.insert(staff.to_dict())
+    def add_staff(self, staff: Staff):
+        return self.insert(staff.to_dict())
 
-    def list_staff(self):
-        return self.dao.get_all()
-
-    def update_staff(self, staff_id, data):
-        return self.dao.update(staff_id, data, id_field="staff_id")
+    def update_staff(self, staff_id, data: dict):
+        return self.update(staff_id, data, "staff_id")
 
     def delete_staff(self, staff_id):
-        return self.dao.delete(staff_id, id_field="staff_id")
+        return self.delete(staff_id, "staff_id")
+
+    def list_staff(self):
+        return self.select_all()
