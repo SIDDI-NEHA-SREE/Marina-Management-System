@@ -3,6 +3,7 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 
+# Services
 from src.services.owners_service import OwnersService
 from src.services.vessels_service import VesselsService
 from src.services.dockings_service import DockingsService
@@ -10,6 +11,7 @@ from src.services.payments_service import PaymentsService
 from src.services.violations_service import ViolationsService
 from src.services.staff_service import StaffService
 
+# Models
 from src.models.owner import Owner
 from src.models.vessel import Vessel
 from src.models.docking import Docking
@@ -17,70 +19,60 @@ from src.models.payment import Payment
 from src.models.violation import Violation
 from src.models.staff import Staff
 
+# Dashboard
 from src.dashboard.dashboard import Dashboard
 
 
-# ---------- PAGE CONFIG ----------
+# ------------- Page Config & Styles -------------
 st.set_page_config(page_title="Marina Management System", layout="wide")
 
-# ---------- GLOBAL CSS ----------
-st.markdown("""
+st.markdown(
+    """
     <style>
-    body { background-color: #f6fbfc; }
-    .main-header {
-        background-color: #006D77;
-        color: white;
-        text-align: center;
-        padding: 15px;
-        font-size: 30px;
-        font-weight: bold;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .section-header {
-        color: #006D77;
-        font-size: 22px;
-        margin-top: 20px;
-        font-weight: bold;
-    }
-    .form-card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
+        body {background-color: #e6f7ff;}
+        .main {background-color: #f8fcff;}
+        h1, h2, h3, h4 {
+            color: #003366 !important;
+            font-family: 'Arial Black', sans-serif;
+        }
+        .stButton button {
+            background-color: #0077b6;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+        .stButton button:hover {
+            background-color: #005f8a;
+        }
     </style>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True,
+)
+
+st.title("🌊 Marina Management System 🚤")
+
+page = st.sidebar.selectbox(
+    "Menu",
+    ["Dashboard", "Owners", "Vessels", "Dockings", "Payments", "Violations", "Staff"],
+)
 
 
-# ---------- APP HEADER ----------
-st.markdown('<div class="main-header">MARINA MANAGEMENT SYSTEM 🚤</div>', unsafe_allow_html=True)
-
-# Sidebar
-page = st.sidebar.selectbox("Menu", [
-    "Dashboard", "Owners", "Vessels", "Dockings", "Payments", "Violations", "Staff"
-])
-
-
-# ---------------- Owners ----------------
+# ------------- Owners -------------
 if page == "Owners":
-    st.markdown('<div class="section-header">👤 Owners</div>', unsafe_allow_html=True)
+    st.header("👤 Owners")
     service = OwnersService()
     action = st.selectbox("Choose Action", ["Add", "Update", "Delete", "View"])
 
     if action == "Add":
-        with st.form("add_owner", clear_on_submit=True):
-            st.markdown('<div class="form-card">', unsafe_allow_html=True)
+        with st.form("add_owner"):
             name = st.text_input("Name")
             address = st.text_input("Address")
             phone = st.text_input("Phone")
             email = st.text_input("Email")
-            submitted = st.form_submit_button("➕ Add Owner")
+            submitted = st.form_submit_button("Add Owner")
             if submitted:
                 service.create_owner(Owner(name, address, phone, email))
-                st.success("✅ Owner added successfully!")
-            st.markdown('</div>', unsafe_allow_html=True)
+                st.success("✅ Owner added!")
 
     elif action == "Update":
         owners = service.list_owners()
@@ -88,7 +80,7 @@ if page == "Owners":
             df = pd.DataFrame(owners)
             owner_id = st.selectbox("Select Owner ID", df["owner_id"])
             new_address = st.text_input("New Address")
-            if st.button("✏️ Update Owner"):
+            if st.button("Update"):
                 service.update_owner(owner_id, {"address": new_address})
                 st.success("✅ Owner updated!")
 
@@ -97,7 +89,7 @@ if page == "Owners":
         if owners:
             df = pd.DataFrame(owners)
             owner_id = st.selectbox("Select Owner ID", df["owner_id"])
-            if st.button("🗑️ Delete Owner"):
+            if st.button("Delete"):
                 service.delete_owner(owner_id)
                 st.success("🗑️ Owner deleted!")
 
@@ -105,25 +97,23 @@ if page == "Owners":
         st.dataframe(pd.DataFrame(service.list_owners()))
 
 
-# ---------------- Vessels ----------------
+# ------------- Vessels -------------
 if page == "Vessels":
-    st.markdown('<div class="section-header">⛵ Vessels</div>', unsafe_allow_html=True)
+    st.header("🚤 Vessels")
     service = VesselsService()
     action = st.selectbox("Choose Action", ["Add", "Update", "Delete", "View"])
 
     if action == "Add":
-        with st.form("add_vessel", clear_on_submit=True):
-            st.markdown('<div class="form-card">', unsafe_allow_html=True)
+        with st.form("add_vessel"):
             vessel_name = st.text_input("Vessel Name")
             vessel_type = st.text_input("Vessel Type")
             capacity = st.number_input("Capacity", min_value=0)
             owner_id = st.number_input("Owner ID", min_value=1)
             reg = st.text_input("Registration Number")
-            submitted = st.form_submit_button("➕ Add Vessel")
+            submitted = st.form_submit_button("Add Vessel")
             if submitted:
                 service.create_vessel(Vessel(vessel_name, vessel_type, capacity, owner_id, reg))
                 st.success("✅ Vessel added!")
-            st.markdown('</div>', unsafe_allow_html=True)
 
     elif action == "Update":
         vessels = service.list_vessels()
@@ -131,7 +121,7 @@ if page == "Vessels":
             df = pd.DataFrame(vessels)
             vessel_id = st.selectbox("Select Vessel ID", df["vessel_id"])
             new_type = st.text_input("New Vessel Type")
-            if st.button("✏️ Update Vessel"):
+            if st.button("Update"):
                 service.update_vessel(vessel_id, {"vessel_type": new_type})
                 st.success("✅ Vessel updated!")
 
@@ -140,7 +130,7 @@ if page == "Vessels":
         if vessels:
             df = pd.DataFrame(vessels)
             vessel_id = st.selectbox("Select Vessel ID", df["vessel_id"])
-            if st.button("🗑️ Delete Vessel"):
+            if st.button("Delete"):
                 service.delete_vessel(vessel_id)
                 st.success("🗑️ Vessel deleted!")
 
@@ -148,23 +138,21 @@ if page == "Vessels":
         st.dataframe(pd.DataFrame(service.list_vessels()))
 
 
-# ---------------- Dockings ----------------
+# ------------- Dockings -------------
 if page == "Dockings":
-    st.markdown('<div class="section-header">⚓ Dockings</div>', unsafe_allow_html=True)
+    st.header("⚓ Dockings")
     service = DockingsService()
     action = st.selectbox("Choose Action", ["Add", "Update", "Delete", "View"])
 
     if action == "Add":
-        with st.form("add_docking", clear_on_submit=True):
-            st.markdown('<div class="form-card">', unsafe_allow_html=True)
+        with st.form("add_docking"):
             vessel_id = st.number_input("Vessel ID", min_value=1)
             location = st.text_input("Dock Location")
             capacity = st.number_input("Dock Capacity", min_value=1)
-            submitted = st.form_submit_button("➕ Add Docking")
+            submitted = st.form_submit_button("Add Docking")
             if submitted:
                 service.dock_vessel(Docking(vessel_id, location, capacity))
                 st.success("✅ Docking added!")
-            st.markdown('</div>', unsafe_allow_html=True)
 
     elif action == "Update":
         dockings = service.list_dockings()
@@ -172,7 +160,7 @@ if page == "Dockings":
             df = pd.DataFrame(dockings)
             docking_id = st.selectbox("Select Docking ID", df["docking_id"])
             new_status = st.text_input("New Status")
-            if st.button("✏️ Update Docking"):
+            if st.button("Update"):
                 service.update_docking(docking_id, {"status": new_status})
                 st.success("✅ Docking updated!")
 
@@ -181,7 +169,7 @@ if page == "Dockings":
         if dockings:
             df = pd.DataFrame(dockings)
             docking_id = st.selectbox("Select Docking ID", df["docking_id"])
-            if st.button("🗑️ Delete Docking"):
+            if st.button("Delete"):
                 service.delete_docking(docking_id)
                 st.success("🗑️ Docking deleted!")
 
@@ -189,24 +177,22 @@ if page == "Dockings":
         st.dataframe(pd.DataFrame(service.list_dockings()))
 
 
-# ---------------- Payments ----------------
+# ------------- Payments -------------
 if page == "Payments":
-    st.markdown('<div class="section-header">💰 Payments</div>', unsafe_allow_html=True)
+    st.header("💰 Payments")
     service = PaymentsService()
     action = st.selectbox("Choose Action", ["Add", "View"])
 
     if action == "Add":
-        with st.form("add_payment", clear_on_submit=True):
-            st.markdown('<div class="form-card">', unsafe_allow_html=True)
+        with st.form("add_payment"):
             vessel_id = st.number_input("Vessel ID", min_value=1)
             amount = st.number_input("Amount", min_value=0.0)
             ptype = st.text_input("Payment Type")
             tax = st.number_input("Tax Amount", min_value=0.0)
-            submitted = st.form_submit_button("➕ Record Payment")
+            submitted = st.form_submit_button("Add Payment")
             if submitted:
                 service.record_payment(Payment(vessel_id, amount, ptype, tax))
                 st.success("✅ Payment recorded!")
-            st.markdown('</div>', unsafe_allow_html=True)
 
     elif action == "View":
         payments = service.list_payments()
@@ -216,67 +202,49 @@ if page == "Payments":
         st.dataframe(df)
 
 
-
-# ---------------- Violations ----------------
+# ------------- Violations -------------
 if page == "Violations":
-    st.header("Violations")
+    st.header("⚠️ Violations")
     service = ViolationsService()
-    action = st.radio("Select Mode", ["Manual", "Automated"])
+    mode = st.radio("Violation Entry Mode", ["Manual", "Automated"])
 
-    # Manual Entry
-    if action == "Manual":
-        option = st.radio("Action", ["Add", "View"])
-        if option == "Add":
-            with st.form("add_violation"):
-                vessel_id = st.number_input("Vessel ID", min_value=1)
-                vtype = st.text_input("Violation Type")
-                details = st.text_area("Details")
-                submitted = st.form_submit_button("Report Violation")
-                if submitted:
-                    service.report_violation(Violation(vessel_id, vtype, details))
-                    st.success("Violation reported manually!")
-        elif option == "View":
-            st.dataframe(pd.DataFrame(service.list_violations()))
+    if mode == "Manual":
+        with st.form("add_violation"):
+            vessel_id = st.number_input("Vessel ID", min_value=1)
+            vtype = st.text_input("Violation Type")
+            details = st.text_area("Details")
+            submitted = st.form_submit_button("Report Violation")
+            if submitted:
+                service.report_violation(Violation(vessel_id, vtype, details))
+                st.success("✅ Violation reported manually!")
 
-    # Automated Tracking
-    elif action == "Automated":
-        st.info("Simulating GPS tracking for vessels...")
-
-        # Fake GPS positions (you can replace this with live API data later)
+    elif mode == "Automated":
+        st.info("GPS-based violation detection (demo)")
         gps_data = [
-            {"vessel_id": 1, "lat": 17.3850, "lon": 78.4867},  # Example: Hyderabad
-            {"vessel_id": 2, "lat": 13.0827, "lon": 80.2707},  # Example: Chennai
-            {"vessel_id": 3, "lat": 18.1124, "lon": 83.3956},  # Example: Vizag
+            {"vessel_id": 1, "lat": 17.3850, "lon": 78.4867},
+            {"vessel_id": 2, "lat": 13.0827, "lon": 80.2707},
         ]
-
-        # Run automated violation check
-        current_time = pd.Timestamp.now(tz="UTC")
         for v in gps_data:
-            service.auto_check_violation(v["vessel_id"], current_time, f"{v['lat']}, {v['lon']}")
-
-        st.success("Automated violation check complete! ✅")
-        st.subheader("Detected Violations")
-        st.dataframe(pd.DataFrame(service.list_violations()))
+            if v["lat"] > 17.0:  # demo condition
+                service.report_violation(Violation(v["vessel_id"], "Speeding", "Exceeded limits"))
+        st.success("✅ Automated violations checked and recorded!")
 
 
-
-# ---------------- Staff ----------------
+# ------------- Staff -------------
 if page == "Staff":
-    st.markdown('<div class="section-header">👨‍✈️ Staff</div>', unsafe_allow_html=True)
+    st.header("👨‍✈️ Staff")
     service = StaffService()
     action = st.selectbox("Choose Action", ["Add", "Update", "Delete", "View"])
 
     if action == "Add":
-        with st.form("add_staff", clear_on_submit=True):
-            st.markdown('<div class="form-card">', unsafe_allow_html=True)
+        with st.form("add_staff"):
             name = st.text_input("Name")
             role = st.text_input("Role")
             contact = st.text_input("Contact Info")
-            submitted = st.form_submit_button("➕ Add Staff")
+            submitted = st.form_submit_button("Add Staff")
             if submitted:
                 service.add_staff(Staff(name, role, contact))
                 st.success("✅ Staff added!")
-            st.markdown('</div>', unsafe_allow_html=True)
 
     elif action == "Update":
         staff = service.list_staff()
@@ -284,7 +252,7 @@ if page == "Staff":
             df = pd.DataFrame(staff)
             staff_id = st.selectbox("Select Staff ID", df["staff_id"])
             new_role = st.text_input("New Role")
-            if st.button("✏️ Update Staff"):
+            if st.button("Update"):
                 service.update_staff(staff_id, {"role": new_role})
                 st.success("✅ Staff updated!")
 
@@ -293,7 +261,7 @@ if page == "Staff":
         if staff:
             df = pd.DataFrame(staff)
             staff_id = st.selectbox("Select Staff ID", df["staff_id"])
-            if st.button("🗑️ Delete Staff"):
+            if st.button("Delete"):
                 service.delete_staff(staff_id)
                 st.success("🗑️ Staff deleted!")
 
@@ -301,14 +269,16 @@ if page == "Staff":
         st.dataframe(pd.DataFrame(service.list_staff()))
 
 
-# ---------------- Dashboard ----------------
+# ------------- Dashboard -------------
 if page == "Dashboard":
-    st.header("📊 Marina Dashboard")
-    dashboard = Dashboard()
+    st.markdown(
+        "<h1 style='text-align: center; color: #003366;'>📊 Marina Dashboard</h1>",
+        unsafe_allow_html=True
+    )
 
     # Vessel map
     st.subheader("🌍 Vessel Locations")
-    m = folium.Map(location=[17.3850, 78.4867], zoom_start=5, tiles="cartodbpositron")
+    m = folium.Map(location=[16.5, 80.6], zoom_start=5, tiles="CartoDB dark_matter")
 
     gps_data = [
         {"vessel_id": 1, "lat": 17.3850, "lon": 78.4867},
@@ -319,18 +289,34 @@ if page == "Dashboard":
     for v in gps_data:
         folium.Marker(
             [v["lat"], v["lon"]],
-            popup=f"Vessel {v['vessel_id']}",
-            icon=folium.Icon(color="blue", icon="ship", prefix="fa"),
+            popup=f"<b>Vessel {v['vessel_id']}</b>",
+            icon=folium.Icon(color="lightblue", icon="ship", prefix="fa"),
         ).add_to(m)
 
-    st_folium(m, width=700, height=500)
+    st_folium(m, width=900, height=500)
 
-    # The rest of your dashboard charts (distribution, occupancy, revenue, violations)
+    # Charts
+    dashboard = Dashboard()
     col1, col2 = st.columns(2)
     with col1:
-        st.plotly_chart(dashboard.vessel_type_distribution(), use_container_width=True)
+        try:
+            st.plotly_chart(dashboard.vessel_type_distribution(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
     with col2:
-        st.plotly_chart(dashboard.dock_occupancy(), use_container_width=True)
+        try:
+            st.plotly_chart(dashboard.dock_occupancy(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
 
-
-
+    col3, col4 = st.columns(2)
+    with col3:
+        try:
+            st.plotly_chart(dashboard.revenue_over_time(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
+    with col4:
+        try:
+            st.plotly_chart(dashboard.violations_by_type(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
