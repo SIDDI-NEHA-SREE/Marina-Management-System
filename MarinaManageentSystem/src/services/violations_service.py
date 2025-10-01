@@ -1,11 +1,12 @@
-from src.dao.base_dao import BaseDAO
+from src.services.base_service import BaseService
+from src.models.violation import Violation
 
-class ViolationsService:
+class ViolationsService(BaseService):
     def __init__(self):
-        self.dao = BaseDAO("mmsviolations")
+        super().__init__("mmsviolations")
 
-    def report_violation(self, violation):
-        return self.dao.insert(violation.to_dict())
+    def report_violation(self, violation: Violation):
+        return self.insert(violation.to_dict())
 
     def list_violations(self):
-        return self.dao.get_all()
+        return self.select_all()
