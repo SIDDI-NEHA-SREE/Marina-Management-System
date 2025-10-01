@@ -24,7 +24,6 @@ st.title("Marina Management System 🚤")
 page = st.sidebar.selectbox("Menu", [
     "Dashboard", "Owners", "Vessels", "Dockings", "Payments", "Violations", "Staff"
 ])
-
 # ---------------- Owners ----------------
 if page == "Owners":
     st.header("Owners")
@@ -247,3 +246,4 @@ if page == "Dashboard":
             st.plotly_chart(dashboard.violations_by_type(), use_container_width=True)
         except Exception as e:
             st.error(f"Error: {e}")
+
