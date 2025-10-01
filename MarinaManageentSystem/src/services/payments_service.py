@@ -1,12 +1,11 @@
 from src.dao.base_dao import BaseDAO
-from src.models.payment import Payment
 
 class PaymentsService:
     def __init__(self):
-        self.dao = BaseDAO("mmspayments", "payment_id")
+        self.dao = BaseDAO("mmspayments")
 
-    def record_payment(self, payment: Payment):
+    def record_payment(self, payment):
         return self.dao.insert(payment.to_dict())
 
     def list_payments(self):
-        return self.dao.select().data
+        return self.dao.get_all()
