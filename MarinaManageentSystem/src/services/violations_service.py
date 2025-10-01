@@ -1,9 +1,9 @@
-from src.dao.violations_dao import ViolationsDAO
+from src.dao.base_dao import BaseDAO
 from src.models.violation import Violation
 
 class ViolationsService:
     def __init__(self):
-        self.dao = ViolationsDAO()
+        self.dao = BaseDAO("mmsviolations", "violation_id")
 
     def report_violation(self, violation: Violation):
         return self.dao.insert(violation.to_dict())
