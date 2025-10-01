@@ -17,6 +17,7 @@ from src.models.staff import Staff
 
 from src.dashboard.dashboard import Dashboard
 
+
 st.set_page_config(page_title="Marina Management System", layout="wide")
 st.title("Marina Management System 🚤")
 
@@ -24,7 +25,7 @@ page = st.sidebar.selectbox("Menu", [
     "Dashboard", "Owners", "Vessels", "Dockings", "Payments", "Violations", "Staff"
 ])
 
-# ========== Owners ==========
+# ---------------- Owners ----------------
 if page == "Owners":
     st.header("Owners")
     service = OwnersService()
@@ -38,11 +39,8 @@ if page == "Owners":
             email = st.text_input("Email")
             submitted = st.form_submit_button("Add Owner")
             if submitted:
-                res = service.create_owner(Owner(name, address, phone, email))
-                if res:
-                    st.success("Owner added!")
-                else:
-                    st.error("Failed to add owner.")
+                service.create_owner(Owner(name, address, phone, email))
+                st.success("Owner added!")
 
     elif action == "Update":
         owners = service.list_owners()
@@ -51,29 +49,22 @@ if page == "Owners":
             owner_id = st.selectbox("Select Owner ID", df["owner_id"])
             new_address = st.text_input("New Address")
             if st.button("Update"):
-                res = service.update_owner(owner_id, {"address": new_address})
-                if res:
-                    st.success("Owner updated!")
-                else:
-                    st.error("Failed to update owner.")
+                service.update_owner(owner_id, {"address": new_address})
+                st.success("Owner updated!")
 
     elif action == "Delete":
         owners = service.list_owners()
         if owners:
             df = pd.DataFrame(owners)
-            owner_id = st.selectbox("Select Owner to Delete", df["owner_id"])
+            owner_id = st.selectbox("Select Owner ID", df["owner_id"])
             if st.button("Delete"):
-                res = service.delete_owner(owner_id)
-                if res:
-                    st.success("Owner deleted!")
-                else:
-                    st.error("Failed to delete owner.")
+                service.delete_owner(owner_id)
+                st.success("Owner deleted!")
 
     elif action == "View":
-        owners = service.list_owners()
-        st.dataframe(pd.DataFrame(owners))
+        st.dataframe(pd.DataFrame(service.list_owners()))
 
-# ========== Vessels ==========
+# ---------------- Vessels ----------------
 if page == "Vessels":
     st.header("Vessels")
     service = VesselsService()
@@ -88,11 +79,8 @@ if page == "Vessels":
             reg = st.text_input("Registration Number")
             submitted = st.form_submit_button("Add Vessel")
             if submitted:
-                res = service.create_vessel(Vessel(vessel_name, vessel_type, capacity, owner_id, reg))
-                if res:
-                    st.success("Vessel added!")
-                else:
-                    st.error("Failed to add vessel.")
+                service.create_vessel(Vessel(vessel_name, vessel_type, capacity, owner_id, reg))
+                st.success("Vessel added!")
 
     elif action == "Update":
         vessels = service.list_vessels()
@@ -101,29 +89,22 @@ if page == "Vessels":
             vessel_id = st.selectbox("Select Vessel ID", df["vessel_id"])
             new_type = st.text_input("New Vessel Type")
             if st.button("Update"):
-                res = service.update_vessel(vessel_id, {"vessel_type": new_type})
-                if res:
-                    st.success("Vessel updated!")
-                else:
-                    st.error("Failed to update vessel.")
+                service.update_vessel(vessel_id, {"vessel_type": new_type})
+                st.success("Vessel updated!")
 
     elif action == "Delete":
         vessels = service.list_vessels()
         if vessels:
             df = pd.DataFrame(vessels)
-            vessel_id = st.selectbox("Select Vessel to Delete", df["vessel_id"])
+            vessel_id = st.selectbox("Select Vessel ID", df["vessel_id"])
             if st.button("Delete"):
-                res = service.delete_vessel(vessel_id)
-                if res:
-                    st.success("Vessel deleted!")
-                else:
-                    st.error("Failed to delete vessel.")
+                service.delete_vessel(vessel_id)
+                st.success("Vessel deleted!")
 
     elif action == "View":
-        vessels = service.list_vessels()
-        st.dataframe(pd.DataFrame(vessels))
+        st.dataframe(pd.DataFrame(service.list_vessels()))
 
-# ========== Dockings ==========
+# ---------------- Dockings ----------------
 if page == "Dockings":
     st.header("Dockings")
     service = DockingsService()
@@ -136,11 +117,8 @@ if page == "Dockings":
             capacity = st.number_input("Dock Capacity", min_value=1)
             submitted = st.form_submit_button("Add Docking")
             if submitted:
-                res = service.dock_vessel(Docking(vessel_id, location, capacity))
-                if res:
-                    st.success("Docking added!")
-                else:
-                    st.error("Failed to add docking.")
+                service.dock_vessel(Docking(vessel_id, location, capacity))
+                st.success("Docking added!")
 
     elif action == "Update":
         dockings = service.list_dockings()
@@ -149,29 +127,22 @@ if page == "Dockings":
             docking_id = st.selectbox("Select Docking ID", df["docking_id"])
             new_status = st.text_input("New Status")
             if st.button("Update"):
-                res = service.update_docking(docking_id, {"status": new_status})
-                if res:
-                    st.success("Docking updated!")
-                else:
-                    st.error("Failed to update docking.")
+                service.update_docking(docking_id, {"status": new_status})
+                st.success("Docking updated!")
 
     elif action == "Delete":
         dockings = service.list_dockings()
         if dockings:
             df = pd.DataFrame(dockings)
-            docking_id = st.selectbox("Select Docking to Delete", df["docking_id"])
+            docking_id = st.selectbox("Select Docking ID", df["docking_id"])
             if st.button("Delete"):
-                res = service.delete_docking(docking_id)
-                if res:
-                    st.success("Docking deleted!")
-                else:
-                    st.error("Failed to delete docking.")
+                service.delete_docking(docking_id)
+                st.success("Docking deleted!")
 
     elif action == "View":
-        dockings = service.list_dockings()
-        st.dataframe(pd.DataFrame(dockings))
+        st.dataframe(pd.DataFrame(service.list_dockings()))
 
-# ========== Payments ==========
+# ---------------- Payments ----------------
 if page == "Payments":
     st.header("Payments")
     service = PaymentsService()
@@ -185,17 +156,13 @@ if page == "Payments":
             tax = st.number_input("Tax Amount", min_value=0.0)
             submitted = st.form_submit_button("Add Payment")
             if submitted:
-                res = service.record_payment(Payment(vessel_id, amount, ptype, tax))
-                if res:
-                    st.success("Payment added!")
-                else:
-                    st.error("Failed to add payment.")
+                service.record_payment(Payment(vessel_id, amount, ptype, tax))
+                st.success("Payment recorded!")
 
     elif action == "View":
-        payments = service.list_payments()
-        st.dataframe(pd.DataFrame(payments))
+        st.dataframe(pd.DataFrame(service.list_payments()))
 
-# ========== Violations ==========
+# ---------------- Violations ----------------
 if page == "Violations":
     st.header("Violations")
     service = ViolationsService()
@@ -206,19 +173,15 @@ if page == "Violations":
             vessel_id = st.number_input("Vessel ID", min_value=1)
             vtype = st.text_input("Violation Type")
             details = st.text_area("Details")
-            submitted = st.form_submit_button("Add Violation")
+            submitted = st.form_submit_button("Report Violation")
             if submitted:
-                res = service.report_violation(Violation(vessel_id, vtype, details))
-                if res:
-                    st.success("Violation reported!")
-                else:
-                    st.error("Failed to add violation.")
+                service.report_violation(Violation(vessel_id, vtype, details))
+                st.success("Violation reported!")
 
     elif action == "View":
-        violations = service.list_violations()
-        st.dataframe(pd.DataFrame(violations))
+        st.dataframe(pd.DataFrame(service.list_violations()))
 
-# ========== Staff ==========
+# ---------------- Staff ----------------
 if page == "Staff":
     st.header("Staff")
     service = StaffService()
@@ -231,72 +194,56 @@ if page == "Staff":
             contact = st.text_input("Contact Info")
             submitted = st.form_submit_button("Add Staff")
             if submitted:
-                res = service.add_staff(Staff(name, role, contact))
-                if res:
-                    st.success("Staff added!")
-                else:
-                    st.error("Failed to add staff.")
+                service.add_staff(Staff(name, role, contact))
+                st.success("Staff added!")
 
     elif action == "Update":
         staff = service.list_staff()
         if staff:
             df = pd.DataFrame(staff)
-            staff_id = st.selectbox("Select Staff", df["staff_id"])
+            staff_id = st.selectbox("Select Staff ID", df["staff_id"])
             new_role = st.text_input("New Role")
             if st.button("Update"):
-                res = service.update_staff(staff_id, {"role": new_role})
-                if res:
-                    st.success("Staff updated!")
-                else:
-                    st.error("Failed to update staff.")
+                service.update_staff(staff_id, {"role": new_role})
+                st.success("Staff updated!")
 
     elif action == "Delete":
         staff = service.list_staff()
         if staff:
             df = pd.DataFrame(staff)
-            staff_id = st.selectbox("Select Staff to Delete", df["staff_id"])
+            staff_id = st.selectbox("Select Staff ID", df["staff_id"])
             if st.button("Delete"):
-                res = service.delete_staff(staff_id)
-                if res:
-                    st.success("Staff deleted!")
-                else:
-                    st.error("Failed to delete staff.")
+                service.delete_staff(staff_id)
+                st.success("Staff deleted!")
 
     elif action == "View":
-        staff = service.list_staff()
-        st.dataframe(pd.DataFrame(staff))
+        st.dataframe(pd.DataFrame(service.list_staff()))
 
-# ========== Dashboard ==========
+# ---------------- Dashboard ----------------
 if page == "Dashboard":
     st.header("📊 Marina Dashboard")
     dashboard = Dashboard()
 
     col1, col2 = st.columns(2)
     with col1:
-        fig1 = dashboard.vessel_type_distribution()
-        if fig1:
-            st.plotly_chart(fig1, use_container_width=True)
-        else:
-            st.info("No vessel data yet.")
-
+        try:
+            st.plotly_chart(dashboard.vessel_type_distribution(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
     with col2:
-        fig2 = dashboard.dock_occupancy()
-        if fig2:
-            st.plotly_chart(fig2, use_container_width=True)
-        else:
-            st.info("No docking data yet.")
+        try:
+            st.plotly_chart(dashboard.dock_occupancy(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
 
     col3, col4 = st.columns(2)
     with col3:
-        fig3 = dashboard.revenue_over_time()
-        if fig3:
-            st.plotly_chart(fig3, use_container_width=True)
-        else:
-            st.info("No payment data yet.")
-
+        try:
+            st.plotly_chart(dashboard.revenue_over_time(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
     with col4:
-        fig4 = dashboard.violations_by_type()
-        if fig4:
-            st.plotly_chart(fig4, use_container_width=True)
-        else:
-            st.info("No violation data yet.")
+        try:
+            st.plotly_chart(dashboard.violations_by_type(), use_container_width=True)
+        except Exception as e:
+            st.error(f"Error: {e}")
