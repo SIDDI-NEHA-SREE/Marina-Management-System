@@ -16,3 +16,4 @@ class OwnersService(BaseService):
 
     def list_owners(self):
         return self.select_all()
+
