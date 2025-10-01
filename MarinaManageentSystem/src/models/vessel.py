@@ -1,6 +1,5 @@
 class Vessel:
-    def __init__(self, vessel_name, vessel_type, capacity, owner_id, registration_number, vessel_id=None):
-        self.vessel_id = vessel_id
+    def __init__(self, vessel_name, vessel_type, capacity, owner_id, registration_number):
         self.vessel_name = vessel_name
         self.vessel_type = vessel_type
         self.capacity = capacity
