@@ -1,17 +1,18 @@
-from src.dao.base_dao import BaseDAO
+from src.services.base_service import BaseService
+from src.models.vessel import Vessel
 
-class VesselsService:
+class VesselsService(BaseService):
     def __init__(self):
-        self.dao = BaseDAO("mmsvessels")
+        super().__init__("mmsvessels")
 
-    def create_vessel(self, vessel):
-        return self.dao.insert(vessel.to_dict())
+    def create_vessel(self, vessel: Vessel):
+        return self.insert(vessel.to_dict())
 
-    def list_vessels(self):
-        return self.dao.get_all()
-
-    def update_vessel(self, vessel_id, data):
-        return self.dao.update(vessel_id, data, id_field="vessel_id")
+    def update_vessel(self, vessel_id, data: dict):
+        return self.update(vessel_id, data, "vessel_id")
 
     def delete_vessel(self, vessel_id):
-        return self.dao.delete(vessel_id, id_field="vessel_id")
+        return self.delete(vessel_id, "vessel_id")
+
+    def list_vessels(self):
+        return self.select_all()
