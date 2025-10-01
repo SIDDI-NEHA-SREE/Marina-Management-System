@@ -4,9 +4,7 @@ from src.dao.vessels_dao import VesselsDAO
 from src.dao.dockings_dao import DockingsDAO
 from src.dao.payments_dao import PaymentsDAO
 from src.dao.violations_dao import ViolationsDAO
-from src.dao.base_dao import BaseDAO
 from src.utils.supabase_client import supabase
-
 
 class Dashboard:
     def __init__(self):
@@ -17,46 +15,29 @@ class Dashboard:
 
     def vessel_type_distribution(self):
         res = self.vessels_dao.select()
-        if not res:
-            return None
+        if not res: return None
         df = pd.DataFrame(res)
-        if "vessel_type" not in df:
-            return None
-        fig = px.pie(df, names="vessel_type", title="Vessel Type Distribution")
-        return fig
+        if "vessel_type" not in df: return None
+        return px.pie(df, names="vessel_type", title="Vessel Type Distribution")
 
     def dock_occupancy(self):
         res = self.dockings_dao.select()
-        if not res:
-            return None
+        if not res: return None
         df = pd.DataFrame(res)
-        if "status" not in df:
-            return None
-        fig = px.histogram(df, x="dock_location", color="status", title="Dock Occupancy")
-        return fig
+        if "status" not in df: return None
+        return px.histogram(df, x="dock_location", color="status", title="Dock Occupancy")
 
     def revenue_over_time(self):
         res = self.payments_dao.select()
-        if not res:
-            return None
+        if not res: return None
         df = pd.DataFrame(res)
-        if "payment_date" not in df:
-            return None
+        if "payment_date" not in df: return None
         df["payment_date"] = pd.to_datetime(df["payment_date"])
-        fig = px.line(
-            df,
-            x="payment_date",
-            y="amount",
-            title="Revenue Over Time",
-        )
-        return fig
+        return px.line(df, x="payment_date", y="amount", title="Revenue Over Time")
 
     def violations_by_type(self):
         res = self.violations_dao.select()
-        if not res:
-            return None
+        if not res: return None
         df = pd.DataFrame(res)
-        if "violation_type" not in df:
-            return None
-        fig = px.bar(df, x="violation_type", title="Violations by Type")
-        return fig
+        if "violation_type" not in df: return None
+        return px.bar(df, x="violation_type", title="Violations by Type")
