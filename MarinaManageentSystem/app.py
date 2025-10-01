@@ -1,287 +1,215 @@
 import streamlit as st
 import pandas as pd
+
+# Import services + models
 from src.services.owners_service import OwnersService
 from src.services.vessels_service import VesselsService
 from src.services.dockings_service import DockingsService
 from src.services.payments_service import PaymentsService
 from src.services.violations_service import ViolationsService
 from src.services.staff_service import StaffService
+
 from src.models.owner import Owner
 from src.models.vessel import Vessel
 from src.models.docking import Docking
 from src.models.payment import Payment
 from src.models.violation import Violation
 from src.models.staff import Staff
+
 from src.dashboard.dashboard import Dashboard
 
+
+# ------------------- CONFIG -------------------
 st.set_page_config(page_title="Marina Management System", layout="wide")
 st.title("Marina Management System 🚤")
 
+# Sidebar menu
 page = st.sidebar.selectbox("Menu", [
     "Dashboard", "Owners", "Vessels", "Dockings", "Payments", "Violations", "Staff"
 ])
 
-# ================= OWNERS =================
+
+# ------------------- OWNERS -------------------
 if page == "Owners":
-    st.header("Owners")
-    choice = st.radio("Action", ["Add", "Update", "Delete", "View"])
+    st.header("⚓ Owners Management")
     service = OwnersService()
 
-    if choice == "Add":
-        with st.form("owner_form"):
+    action = st.radio("Choose action:", ["Add", "Update", "Delete", "View All"])
+
+    if action == "Add":
+        with st.form("add_owner"):
             name = st.text_input("Name")
             address = st.text_input("Address")
             phone = st.text_input("Phone")
             email = st.text_input("Email")
             submitted = st.form_submit_button("Add Owner")
             if submitted:
-                o = Owner(name, address, phone, email)
-                service.create_owner(o)
-                st.success("Owner added!")
+                owner = Owner(name, address, phone, email)
+                res = service.create_owner(owner)
+                st.success("Owner added successfully!")
 
-    elif choice == "Update":
+    elif action == "Update":
         owners = service.list_owners()
-        df = pd.DataFrame(owners)
-        if not df.empty:
+        if owners:
+            df = pd.DataFrame(owners)
             selected = st.selectbox("Select Owner to Update", df["owner_id"])
-            with st.form("update_owner"):
-                name = st.text_input("Name", df.loc[df["owner_id"]==selected,"name"].values[0])
-                address = st.text_input("Address", df.loc[df["owner_id"]==selected,"address"].values[0])
-                phone = st.text_input("Phone", df.loc[df["owner_id"]==selected,"phone"].values[0])
-                email = st.text_input("Email", df.loc[df["owner_id"]==selected,"email"].values[0])
-                submitted = st.form_submit_button("Update")
-                if submitted:
-                    service.dao.update(selected, {
-                        "name": name, "address": address, "phone": phone, "email": email
-                    }, id_field="owner_id")
-                    st.success("Owner updated!")
+            new_name = st.text_input("New Name")
+            if st.button("Update Owner"):
+                service.update_owner(selected, {"name": new_name})
+                st.success("Owner updated!")
 
-    elif choice == "Delete":
+    elif action == "Delete":
         owners = service.list_owners()
-        df = pd.DataFrame(owners)
-        if not df.empty:
+        if owners:
+            df = pd.DataFrame(owners)
             selected = st.selectbox("Select Owner to Delete", df["owner_id"])
-            if st.button("Delete"):
-                service.dao.delete(selected, id_field="owner_id")
+            if st.button("Delete Owner"):
+                service.delete_owner(selected)
                 st.success("Owner deleted!")
 
-    st.subheader("Owners List")
-    st.dataframe(pd.DataFrame(service.list_owners()))
+    elif action == "View All":
+        owners = service.list_owners()
+        st.dataframe(pd.DataFrame(owners))
 
-# ================= VESSELS =================
+
+# ------------------- VESSELS -------------------
 if page == "Vessels":
-    st.header("Vessels")
-    choice = st.radio("Action", ["Add", "Update", "Delete", "View"])
+    st.header("⛴ Vessels Management")
     service = VesselsService()
 
-    if choice == "Add":
-        with st.form("vessel_form"):
-            vessel_name = st.text_input("Vessel Name")
-            vessel_type = st.text_input("Vessel Type")
+    action = st.radio("Choose action:", ["Add", "Update", "Delete", "View All"])
+
+    if action == "Add":
+        with st.form("add_vessel"):
+            name = st.text_input("Vessel Name")
+            vtype = st.text_input("Type")
             capacity = st.number_input("Capacity", min_value=0)
             owner_id = st.number_input("Owner ID", min_value=1)
             reg = st.text_input("Registration Number")
             submitted = st.form_submit_button("Add Vessel")
             if submitted:
-                v = Vessel(vessel_name, vessel_type, capacity, owner_id, reg)
-                service.create_vessel(v)
+                vessel = Vessel(name, vtype, capacity, owner_id, reg)
+                service.create_vessel(vessel)
                 st.success("Vessel added!")
 
-    elif choice == "Update":
+    elif action == "Update":
         vessels = service.list_vessels()
-        df = pd.DataFrame(vessels)
-        if not df.empty:
-            selected = st.selectbox("Select Vessel", df["vessel_id"])
-            with st.form("update_vessel"):
-                vessel_name = st.text_input("Name", df.loc[df["vessel_id"]==selected,"vessel_name"].values[0])
-                vessel_type = st.text_input("Type", df.loc[df["vessel_id"]==selected,"vessel_type"].values[0])
-                submitted = st.form_submit_button("Update")
-                if submitted:
-                    service.dao.update(selected, {"vessel_name": vessel_name, "vessel_type": vessel_type}, id_field="vessel_id")
-                    st.success("Vessel updated!")
+        if vessels:
+            df = pd.DataFrame(vessels)
+            selected = st.selectbox("Select Vessel ID", df["vessel_id"])
+            new_type = st.text_input("New Type")
+            if st.button("Update Vessel"):
+                service.update_vessel(selected, {"vessel_type": new_type})
+                st.success("Vessel updated!")
 
-    elif choice == "Delete":
+    elif action == "Delete":
         vessels = service.list_vessels()
-        df = pd.DataFrame(vessels)
-        if not df.empty:
-            selected = st.selectbox("Select Vessel to Delete", df["vessel_id"])
-            if st.button("Delete"):
-                service.dao.delete(selected, id_field="vessel_id")
+        if vessels:
+            df = pd.DataFrame(vessels)
+            selected = st.selectbox("Select Vessel ID", df["vessel_id"])
+            if st.button("Delete Vessel"):
+                service.delete_vessel(selected)
                 st.success("Vessel deleted!")
 
-    st.subheader("Vessels List")
-    st.dataframe(pd.DataFrame(service.list_vessels()))
+    elif action == "View All":
+        vessels = service.list_vessels()
+        st.dataframe(pd.DataFrame(vessels))
 
-# ================= DOCKINGS =================
+
+# ------------------- DOCKINGS -------------------
 if page == "Dockings":
-    st.header("Dockings")
-    choice = st.radio("Action", ["Add", "Update", "Delete", "View"])
+    st.header("🛳 Dockings")
     service = DockingsService()
 
-    if choice == "Add":
-        with st.form("dock_form"):
+    action = st.radio("Choose action:", ["Add", "View All"])
+
+    if action == "Add":
+        with st.form("add_docking"):
             vessel_id = st.number_input("Vessel ID", min_value=1)
-            dock_location = st.text_input("Dock Location")
-            dock_capacity = st.number_input("Capacity", min_value=1)
+            location = st.text_input("Dock Location")
+            capacity = st.number_input("Dock Capacity", min_value=1)
             submitted = st.form_submit_button("Dock Vessel")
             if submitted:
-                d = Docking(vessel_id, dock_location, dock_capacity)
-                service.dock_vessel(d)
+                docking = Docking(vessel_id, location, capacity)
+                service.dock_vessel(docking)
                 st.success("Docking recorded!")
 
-    elif choice == "Update":
+    elif action == "View All":
         dockings = service.list_dockings()
-        df = pd.DataFrame(dockings)
-        if not df.empty:
-            selected = st.selectbox("Select Docking", df["docking_id"])
-            with st.form("update_docking"):
-                dock_location = st.text_input("Dock Location", df.loc[df["docking_id"]==selected,"dock_location"].values[0])
-                status = st.text_input("Status", df.loc[df["docking_id"]==selected,"status"].values[0])
-                submitted = st.form_submit_button("Update")
-                if submitted:
-                    service.dao.update(selected, {"dock_location": dock_location, "status": status}, id_field="docking_id")
-                    st.success("Docking updated!")
+        st.dataframe(pd.DataFrame(dockings))
 
-    elif choice == "Delete":
-        dockings = service.list_dockings()
-        df = pd.DataFrame(dockings)
-        if not df.empty:
-            selected = st.selectbox("Select Docking to Delete", df["docking_id"])
-            if st.button("Delete"):
-                service.dao.delete(selected, id_field="docking_id")
-                st.success("Docking deleted!")
 
-    st.subheader("Dockings List")
-    st.dataframe(pd.DataFrame(service.list_dockings()))
-
-# ================= PAYMENTS =================
+# ------------------- PAYMENTS -------------------
 if page == "Payments":
-    st.header("Payments")
-    choice = st.radio("Action", ["Add", "Update", "Delete", "View"])
+    st.header("💰 Payments")
     service = PaymentsService()
 
-    if choice == "Add":
-        with st.form("payment_form"):
+    action = st.radio("Choose action:", ["Add", "View All"])
+
+    if action == "Add":
+        with st.form("add_payment"):
             vessel_id = st.number_input("Vessel ID", min_value=1)
             amount = st.number_input("Amount", min_value=0.0)
-            payment_type = st.text_input("Payment Type")
+            ptype = st.text_input("Payment Type")
             tax = st.number_input("Tax", min_value=0.0)
-            submitted = st.form_submit_button("Record Payment")
+            submitted = st.form_submit_button("Add Payment")
             if submitted:
-                p = Payment(vessel_id, amount, payment_type, tax)
-                service.record_payment(p)
+                payment = Payment(vessel_id, amount, ptype, tax)
+                service.record_payment(payment)
                 st.success("Payment recorded!")
 
-    elif choice == "Update":
+    elif action == "View All":
         payments = service.list_payments()
-        df = pd.DataFrame(payments)
-        if not df.empty:
-            selected = st.selectbox("Select Payment", df["payment_id"])
-            with st.form("update_payment"):
-                amount = st.number_input("Amount", value=float(df.loc[df["payment_id"]==selected,"amount"].values[0]))
-                payment_type = st.text_input("Payment Type", df.loc[df["payment_id"]==selected,"payment_type"].values[0])
-                submitted = st.form_submit_button("Update")
-                if submitted:
-                    service.dao.update(selected, {"amount": amount, "payment_type": payment_type}, id_field="payment_id")
-                    st.success("Payment updated!")
+        st.dataframe(pd.DataFrame(payments))
 
-    elif choice == "Delete":
-        payments = service.list_payments()
-        df = pd.DataFrame(payments)
-        if not df.empty:
-            selected = st.selectbox("Select Payment to Delete", df["payment_id"])
-            if st.button("Delete"):
-                service.dao.delete(selected, id_field="payment_id")
-                st.success("Payment deleted!")
 
-    st.subheader("Payments List")
-    st.dataframe(pd.DataFrame(service.list_payments()))
-
-# ================= VIOLATIONS =================
+# ------------------- VIOLATIONS -------------------
 if page == "Violations":
-    st.header("Violations")
-    choice = st.radio("Action", ["Add", "Update", "Delete", "View"])
+    st.header("⚠️ Violations")
     service = ViolationsService()
 
-    if choice == "Add":
-        with st.form("violation_form"):
+    action = st.radio("Choose action:", ["Add", "View All"])
+
+    if action == "Add":
+        with st.form("add_violation"):
             vessel_id = st.number_input("Vessel ID", min_value=1)
             vtype = st.text_input("Violation Type")
             details = st.text_area("Details")
             submitted = st.form_submit_button("Report Violation")
             if submitted:
-                v = Violation(vessel_id, vtype, details)
-                service.report_violation(v)
+                violation = Violation(vessel_id, vtype, details)
+                service.report_violation(violation)
                 st.success("Violation reported!")
 
-    elif choice == "Update":
+    elif action == "View All":
         violations = service.list_violations()
-        df = pd.DataFrame(violations)
-        if not df.empty:
-            selected = st.selectbox("Select Violation", df["violation_id"])
-            with st.form("update_violation"):
-                vtype = st.text_input("Violation Type", df.loc[df["violation_id"]==selected,"violation_type"].values[0])
-                details = st.text_area("Details", df.loc[df["violation_id"]==selected,"details"].values[0])
-                submitted = st.form_submit_button("Update")
-                if submitted:
-                    service.dao.update(selected, {"violation_type": vtype, "details": details}, id_field="violation_id")
-                    st.success("Violation updated!")
+        st.dataframe(pd.DataFrame(violations))
 
-    elif choice == "Delete":
-        violations = service.list_violations()
-        df = pd.DataFrame(violations)
-        if not df.empty:
-            selected = st.selectbox("Select Violation to Delete", df["violation_id"])
-            if st.button("Delete"):
-                service.dao.delete(selected, id_field="violation_id")
-                st.success("Violation deleted!")
 
-    st.subheader("Violations List")
-    st.dataframe(pd.DataFrame(service.list_violations()))
-
-# ================= STAFF =================
+# ------------------- STAFF -------------------
 if page == "Staff":
-    st.header("Staff")
-    choice = st.radio("Action", ["Add", "Update", "Delete", "View"])
+    st.header("👨‍✈️ Staff")
     service = StaffService()
 
-    if choice == "Add":
-        with st.form("staff_form"):
+    action = st.radio("Choose action:", ["Add", "View All"])
+
+    if action == "Add":
+        with st.form("add_staff"):
             name = st.text_input("Name")
             role = st.text_input("Role")
             contact = st.text_input("Contact Info")
             submitted = st.form_submit_button("Add Staff")
             if submitted:
-                s = Staff(name, role, contact)
-                service.add_staff(s)
+                staff = Staff(name, role, contact)
+                service.add_staff(staff)
                 st.success("Staff added!")
 
-    elif choice == "Update":
-        staff_list = service.list_staff()
-        df = pd.DataFrame(staff_list)
-        if not df.empty:
-            selected = st.selectbox("Select Staff", df["staff_id"])
-            with st.form("update_staff"):
-                name = st.text_input("Name", df.loc[df["staff_id"]==selected,"name"].values[0])
-                role = st.text_input("Role", df.loc[df["staff_id"]==selected,"role"].values[0])
-                submitted = st.form_submit_button("Update")
-                if submitted:
-                    service.dao.update(selected, {"name": name, "role": role}, id_field="staff_id")
-                    st.success("Staff updated!")
+    elif action == "View All":
+        staff = service.list_staff()
+        st.dataframe(pd.DataFrame(staff))
 
-    elif choice == "Delete":
-        staff_list = service.list_staff()
-        df = pd.DataFrame(staff_list)
-        if not df.empty:
-            selected = st.selectbox("Select Staff to Delete", df["staff_id"])
-            if st.button("Delete"):
-                service.dao.delete(selected, id_field="staff_id")
-                st.success("Staff deleted!")
 
-    st.subheader("Staff List")
-    st.dataframe(pd.DataFrame(service.list_staff()))
-
-# ================= DASHBOARD =================
+# ------------------- DASHBOARD -------------------
 if page == "Dashboard":
     st.header("📊 Marina Dashboard")
     dashboard = Dashboard()
@@ -289,28 +217,17 @@ if page == "Dashboard":
     col1, col2 = st.columns(2)
     with col1:
         fig1 = dashboard.vessel_type_distribution()
-        if fig1:
-            st.plotly_chart(fig1, use_container_width=True)
-        else:
-            st.info("No vessel data available.")
+        if fig1: st.plotly_chart(fig1, use_container_width=True)
 
     with col2:
         fig2 = dashboard.dock_occupancy()
-        if fig2:
-            st.plotly_chart(fig2, use_container_width=True)
-        else:
-            st.info("No docking data available.")
+        if fig2: st.plotly_chart(fig2, use_container_width=True)
 
     col3, col4 = st.columns(2)
     with col3:
         fig3 = dashboard.revenue_over_time()
-        if fig3:
-            st.plotly_chart(fig3, use_container_width=True)
-        else:
-            st.info("No payment data available.")
+        if fig3: st.plotly_chart(fig3, use_container_width=True)
+
     with col4:
         fig4 = dashboard.violations_by_type()
-        if fig4:
-            st.plotly_chart(fig4, use_container_width=True)
-        else:
-            st.info("No violation data available.")
+        if fig4: st.plotly_chart(fig4, use_container_width=True)
