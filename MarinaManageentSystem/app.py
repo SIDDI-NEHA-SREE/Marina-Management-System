@@ -217,24 +217,45 @@ if page == "Payments":
 
 # ---------------- Violations ----------------
 if page == "Violations":
-    st.markdown('<div class="section-header">🚨 Violations</div>', unsafe_allow_html=True)
+    st.header("Violations")
     service = ViolationsService()
-    action = st.selectbox("Choose Action", ["Add", "View"])
+    action = st.radio("Select Mode", ["Manual", "Automated"])
 
-    if action == "Add":
-        with st.form("add_violation", clear_on_submit=True):
-            st.markdown('<div class="form-card">', unsafe_allow_html=True)
-            vessel_id = st.number_input("Vessel ID", min_value=1)
-            vtype = st.text_input("Violation Type")
-            details = st.text_area("Details")
-            submitted = st.form_submit_button("🚨 Report Violation")
-            if submitted:
-                service.report_violation(Violation(vessel_id, vtype, details))
-                st.success("✅ Violation reported!")
-            st.markdown('</div>', unsafe_allow_html=True)
+    # Manual Entry
+    if action == "Manual":
+        option = st.radio("Action", ["Add", "View"])
+        if option == "Add":
+            with st.form("add_violation"):
+                vessel_id = st.number_input("Vessel ID", min_value=1)
+                vtype = st.text_input("Violation Type")
+                details = st.text_area("Details")
+                submitted = st.form_submit_button("Report Violation")
+                if submitted:
+                    service.report_violation(Violation(vessel_id, vtype, details))
+                    st.success("Violation reported manually!")
+        elif option == "View":
+            st.dataframe(pd.DataFrame(service.list_violations()))
 
-    elif action == "View":
+    # Automated Tracking
+    elif action == "Automated":
+        st.info("Simulating GPS tracking for vessels...")
+
+        # Fake GPS positions (you can replace this with live API data later)
+        gps_data = [
+            {"vessel_id": 1, "lat": 17.3850, "lon": 78.4867},  # Example: Hyderabad
+            {"vessel_id": 2, "lat": 13.0827, "lon": 80.2707},  # Example: Chennai
+            {"vessel_id": 3, "lat": 18.1124, "lon": 83.3956},  # Example: Vizag
+        ]
+
+        # Run automated violation check
+        current_time = pd.Timestamp.now(tz="UTC")
+        for v in gps_data:
+            service.auto_check_violation(v["vessel_id"], current_time, f"{v['lat']}, {v['lon']}")
+
+        st.success("Automated violation check complete! ✅")
+        st.subheader("Detected Violations")
         st.dataframe(pd.DataFrame(service.list_violations()))
+
 
 
 # ---------------- Staff ----------------
@@ -282,4 +303,5 @@ if page == "Staff":
 if page == "Dashboard":
     from dashboard_ui import show_dashboard
     show_dashboard()
+
 
