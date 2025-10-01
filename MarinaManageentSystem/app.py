@@ -289,15 +289,28 @@ if page == "Dashboard":
     col1, col2 = st.columns(2)
     with col1:
         fig1 = dashboard.vessel_type_distribution()
-        if fig1: st.plotly_chart(fig1, use_container_width=True)
+        if fig1:
+            st.plotly_chart(fig1, use_container_width=True)
+        else:
+            st.info("No vessel data available.")
+
     with col2:
         fig2 = dashboard.dock_occupancy()
-        if fig2: st.plotly_chart(fig2, use_container_width=True)
+        if fig2:
+            st.plotly_chart(fig2, use_container_width=True)
+        else:
+            st.info("No docking data available.")
 
     col3, col4 = st.columns(2)
     with col3:
         fig3 = dashboard.revenue_over_time()
-        if fig3: st.plotly_chart(fig3, use_container_width=True)
+        if fig3:
+            st.plotly_chart(fig3, use_container_width=True)
+        else:
+            st.info("No payment data available.")
     with col4:
         fig4 = dashboard.violations_by_type()
-        if fig4: st.plotly_chart(fig4, use_container_width=True)
+        if fig4:
+            st.plotly_chart(fig4, use_container_width=True)
+        else:
+            st.info("No violation data available.")
