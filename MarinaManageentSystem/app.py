@@ -207,7 +207,12 @@ if page == "Payments":
             st.markdown('</div>', unsafe_allow_html=True)
 
     elif action == "View":
-        st.dataframe(pd.DataFrame(service.list_payments()))
+        payments = service.list_payments()
+        df = pd.DataFrame(payments)
+        if "payment_date" in df.columns:
+            df["payment_date"] = pd.to_datetime(df["payment_date"])
+        st.dataframe(df)
+
 
 
 # ---------------- Violations ----------------
@@ -277,3 +282,4 @@ if page == "Staff":
 if page == "Dashboard":
     from dashboard_ui import show_dashboard
     show_dashboard()
+
