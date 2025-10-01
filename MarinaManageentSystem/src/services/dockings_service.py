@@ -1,17 +1,18 @@
-from src.dao.base_dao import BaseDAO
+from src.services.base_service import BaseService
+from src.models.docking import Docking
 
-class DockingsService:
+class DockingsService(BaseService):
     def __init__(self):
-        self.dao = BaseDAO("mmsdockings")
+        super().__init__("mmsdockings")
 
-    def dock_vessel(self, docking):
-        return self.dao.insert(docking.to_dict())
+    def dock_vessel(self, docking: Docking):
+        return self.insert(docking.to_dict())
 
-    def list_dockings(self):
-        return self.dao.get_all()
-
-    def update_docking(self, docking_id, data):
-        return self.dao.update(docking_id, data, id_field="docking_id")
+    def update_docking(self, docking_id, data: dict):
+        return self.update(docking_id, data, "docking_id")
 
     def delete_docking(self, docking_id):
-        return self.dao.delete(docking_id, id_field="docking_id")
+        return self.delete(docking_id, "docking_id")
+
+    def list_dockings(self):
+        return self.select_all()
