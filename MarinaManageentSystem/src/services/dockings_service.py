@@ -1,31 +1,18 @@
-from datetime import datetime
-from src.dao.dockings_dao import DockingsDAO
+from src.dao.base_dao import BaseDAO
 from src.models.docking import Docking
 
 class DockingsService:
     def __init__(self):
-        self.dao = DockingsDAO()
+        self.dao = BaseDAO("mmsdockings", "docking_id")
 
     def dock_vessel(self, docking: Docking):
-        docking.arrival_time = docking.arrival_time or datetime.utcnow()
         return self.dao.insert(docking.to_dict())
-
-    def undock_vessel(self, docking_id: int, departure_time: datetime):
-        # fetch docking record
-        res = self.dao.select({"docking_id": docking_id})
-        if not res.data:
-            return {"error": "Docking not found"}
-
-        row = res.data[0]
-        arrival = datetime.fromisoformat(row["arrival_time"]) if row.get("arrival_time") else datetime.utcnow()
-        stay = departure_time - arrival
-
-        update_payload = {
-            "departure_time": departure_time.isoformat(),
-            "stay_duration": str(stay),
-            "status": "vacated"
-        }
-        return self.dao.update(update_payload, {"docking_id": docking_id})
 
     def list_dockings(self):
         return self.dao.select().data
+
+    def update_docking(self, docking_id, updated_data):
+        return self.dao.update(docking_id, updated_data)
+
+    def delete_docking(self, docking_id):
+        return self.dao.delete(docking_id)
