@@ -1,4 +1,4 @@
-from src.utils.supabase_client import supabase
+
 
 class BaseDAO:
     def __init__(self, table: str):
@@ -41,3 +41,4 @@ class BaseDAO:
         except Exception as e:
             print("Get all error:", e)
             return []
+
