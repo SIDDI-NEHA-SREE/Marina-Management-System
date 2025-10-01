@@ -1,18 +1,37 @@
 from src.services.base_service import BaseService
-from src.models.vessel import Vessel
+import pandas as pd
 
-class VesselsService(BaseService):
+class ViolationsService(BaseService):
     def __init__(self):
-        super().__init__("mmsvessels")
+        super().__init__("mmsviolations")
 
-    def create_vessel(self, vessel: Vessel):
-        return self.insert(vessel.to_dict())
+    def report_violation(self, violation):
+        return self.insert(violation.to_dict())
 
-    def update_vessel(self, vessel_id, data: dict):
-        return self.update(vessel_id, data, "vessel_id")
+    def list_violations(self):
+        return self.fetch_all()
 
-    def delete_vessel(self, vessel_id):
-        return self.delete(vessel_id, "vessel_id")
+    def auto_check_violation(self, vessel_id, current_time, location):
+        # Check if vessel is docked properly
+        docking = self.client.table("mmsdockings").select("*").eq("vessel_id", vessel_id).order("arrival_time", desc=True).limit(1).execute()
+        
+        if not docking.data:
+            # Unauthorized docking
+            self.client.table("mmsviolations").insert({
+                "vessel_id": vessel_id,
+                "violation_type": "Unauthorized Docking",
+                "details": f"Docked at {location} without record",
+                "date_reported": str(current_time)
+            }).execute()
+            return
 
-    def list_vessels(self):
-        return self.select_all()
+        # Overstay check (6 hours)
+        allowed_hours = 6
+        arrival = pd.to_datetime(docking.data[0]["arrival_time"])
+        if (current_time - arrival).total_seconds() > allowed_hours * 3600:
+            self.client.table("mmsviolations").insert({
+                "vessel_id": vessel_id,
+                "violation_type": "Overstay",
+                "details": f"Stayed beyond {allowed_hours} hours",
+                "date_reported": str(current_time)
+            }).execute()
