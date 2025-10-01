@@ -3,6 +3,7 @@ import plotly.express as px
 from supabase import create_client
 import pandas as pd
 
+
 class Dashboard:
     def __init__(self):
         url = st.secrets["SUPABASE_URL"]
@@ -53,3 +54,4 @@ class Dashboard:
         except Exception as e:
             st.error(f"Error: {e}")
             return None
+
