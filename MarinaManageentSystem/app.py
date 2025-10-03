@@ -35,21 +35,23 @@ if "user" not in st.session_state:
 
 # ============ LOGIN FUNCTIONS ============
 def login():
-    st.title("🔐 Staff Login")
+    st.markdown('<div class="main-header">🔐 Staff Login</div>', unsafe_allow_html=True)
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
+
     if st.button("Login"):
         try:
-            res = supabase.auth.sign_in_with_password({"email": email, "password": password})
-            if res.user:
-                st.session_state.user = res.user.email
-                st.success("✅ Login successful")
+            res = supabase.table("mmsstaff").select("*").eq("contact_info", email).eq("password", password).execute()
+
+            if res.data and len(res.data) > 0:
+                st.session_state.logged_in = True
+                st.session_state.staff_email = email
+                st.success("✅ Login successful!")
                 st.rerun()
             else:
-                st.error("❌ Invalid credentials")
+                st.error("❌ Invalid email or password")
         except Exception as e:
             st.error(f"Login failed: {e}")
-
 
 def logout():
     st.session_state.user = None
@@ -311,4 +313,5 @@ if page == "Dashboard":
             st.plotly_chart(vessel_map, use_container_width=True)
     except Exception as e:
         st.error(f"Error loading map: {e}")
+
 
