@@ -12,7 +12,11 @@ class Dashboard:
         self.payments_service = PaymentsService()
         self.violations_service = ViolationsService()
 
-
+    def vessel_type_distribution(self):
+        data = self.vessels_service.list_vessels()
+        if not data: return None
+        df = pd.DataFrame(data)
+        return px.pie(df, names="vessel_type", title="Vessel Types")
     def dock_occupancy(self):
         data = self.dockings_service.list_dockings()
         if not data: return None
@@ -40,4 +44,5 @@ class Dashboard:
         return px.scatter_mapbox(data, lat="lat", lon="lon", text="vessel",
                                  zoom=4, height=500, mapbox_style="open-street-map",
                                  title="Vessel Activity Map")
+
 
