@@ -241,20 +241,16 @@ if page == "Violations":
 
 
 # ---------------- Staff ----------------
-if page == "Staff":
-    st.header("👨‍✈️ Staff")
-    service = StaffService()
-    action = st.selectbox("Action", ["Add", "Update", "Delete", "View"])
-
-    if action == "Add":
-        with st.form("add_staff"):
-            name = st.text_input("Name")
-            role = st.text_input("Role")
-            contact = st.text_input("Contact Info")
-            submitted = st.form_submit_button("Add Staff")
-            if submitted:
-                service.add_staff(Staff(name, role, contact))
-                st.success("✅ Staff added!")
+if action == "Add":
+    with st.form("add_staff", clear_on_submit=True):
+        name = st.text_input("Name")
+        role = st.text_input("Role")
+        contact = st.text_input("Email")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("➕ Add Staff")
+        if submitted:
+            service.add_staff(Staff(name, role, contact, password))
+            st.success("✅ Staff added!")
 
     elif action == "Update":
         staff = service.list_staff()
@@ -315,3 +311,4 @@ if page == "Dashboard":
             st.plotly_chart(vessel_map, use_container_width=True)
     except Exception as e:
         st.error(f"Error loading map: {e}")
+
