@@ -26,8 +26,8 @@ from src.dashboard.dashboard import Dashboard
 st.set_page_config(page_title="Marina Management System", layout="wide")
 
 # ---------- SUPABASE INIT ----------
-url = st.secrets["supabase"]["url"]
-key = st.secrets["supabase"]["key"]
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
 supabase = create_client(url, key)
 
 # ---------- SESSION STATE ----------
@@ -346,3 +346,4 @@ else:
 
             elif action == "View":
                 st.dataframe(pd.DataFrame(service.list_staff()))
+
