@@ -1,57 +1,47 @@
-import streamlit as st
 import plotly.express as px
-from supabase import create_client
 import pandas as pd
-
+from src.services.vessels_service import VesselsService
+from src.services.dockings_service import DockingsService
+from src.services.payments_service import PaymentsService
+from src.services.violations_service import ViolationsService
 
 class Dashboard:
     def __init__(self):
-        url = st.secrets["SUPABASE_URL"]
-        key = st.secrets["SUPABASE_KEY"]
-        self.client = create_client(url, key)
+        self.vessels_service = VesselsService()
+        self.dockings_service = DockingsService()
+        self.payments_service = PaymentsService()
+        self.violations_service = ViolationsService()
 
     def vessel_type_distribution(self):
-        try:
-            res = self.client.table("mmsvessels").select("vessel_type").execute()
-            df = pd.DataFrame(res.data)
-            if df.empty:
-                return None
-            return px.histogram(df, x="vessel_type", title="Vessel Type Distribution")
-        except Exception as e:
-            st.error(f"Error: {e}")
-            return None
+        data = self.vessels_service.list_vessels()
+        if not data: return None
+        df = pd.DataFrame(data)
+        return px.pie(df, names="vessel_type", title="Vessel Types")
 
     def dock_occupancy(self):
-        try:
-            res = self.client.table("mmsdockings").select("status").execute()
-            df = pd.DataFrame(res.data)
-            if df.empty:
-                return None
-            return px.histogram(df, x="status", title="Dock Occupancy")
-        except Exception as e:
-            st.error(f"Error: {e}")
-            return None
+        data = self.dockings_service.list_dockings()
+        if not data: return None
+        df = pd.DataFrame(data)
+        return px.histogram(df, x="status", title="Dock Occupancy")
 
     def revenue_over_time(self):
-        try:
-            res = self.client.table("mmspayments").select("payment_date, amount").execute()
-            df = pd.DataFrame(res.data)
-            if df.empty:
-                return None
-            df["payment_date"] = pd.to_datetime(df["payment_date"])
-            return px.line(df, x="payment_date", y="amount", title="Revenue Over Time")
-        except Exception as e:
-            st.error(f"Error: {e}")
-            return None
+        data = self.payments_service.list_payments()
+        if not data: return None
+        df = pd.DataFrame(data)
+        df["payment_date"] = pd.to_datetime(df["payment_date"])
+        return px.line(df, x="payment_date", y="amount", title="Revenue Over Time")
 
-    def violations_by_type(self):
-        try:
-            res = self.client.table("mmsviolations").select("violation_type").execute()
-            df = pd.DataFrame(res.data)
-            if df.empty:
-                return None
-            return px.histogram(df, x="violation_type", title="Violations by Type")
-        except Exception as e:
-            st.error(f"Error: {e}")
-            return None
+    def violations_alerts(self):
+        data = self.violations_service.list_violations()
+        if not data: return None
+        return pd.DataFrame(data)
 
+    def vessel_map(self):
+        data = pd.DataFrame([
+            {"vessel": "Vessel A", "lat": 17.385044, "lon": 78.486671},
+            {"vessel": "Vessel B", "lat": 13.0827, "lon": 80.2707},
+            {"vessel": "Vessel C", "lat": 19.0760, "lon": 72.8777},
+        ])
+        return px.scatter_mapbox(data, lat="lat", lon="lon", text="vessel",
+                                 zoom=4, height=500, mapbox_style="open-street-map",
+                                 title="Vessel Activity Map")
